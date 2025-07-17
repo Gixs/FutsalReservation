@@ -39,8 +39,10 @@ export const getSlots = (req, res) => {
 };
 
 export const createBooking = (req, res) => {
-    const { date, time } = req.body;
-    if (!date || !time) return res.status(400).json({ message: "Dati incompleti" });
+    const { date, time, nome, telefono } = req.body;
+    if (!date || !time || !nome || !telefono) {
+        return res.status(400).json({ message: "Dati incompleti" });
+    }
 
     const bookings = readBookings();
 
@@ -49,7 +51,7 @@ export const createBooking = (req, res) => {
         return res.status(409).json({ message: "Slot già prenotato" });
     }
 
-    const newBooking = { id: Date.now(), date, time };
+    const newBooking = { id: Date.now(), date, time, nome, telefono };
     bookings.push(newBooking);
     writeBookings(bookings);
 
@@ -60,3 +62,36 @@ export const getAllBookings = (req, res) => {
     const bookings = readBookings();
     res.json(bookings);
 };
+
+export const deleteBooking = (req, res) => {
+    const id = parseInt(req.params.id);
+    let bookings = readBookings();
+
+    const exists = bookings.find(b => b.id === id);
+    if (!exists) return res.status(404).json({ message: "Prenotazione non trovata" });
+
+    bookings = bookings.filter(b => b.id !== id);
+    writeBookings(bookings);
+
+    res.status(204).send(); // No Content
+};
+
+export const updateBooking = (req, res) => {
+    const id = parseInt(req.params.id);
+    let bookings = readBookings();
+    const index = bookings.findIndex(b => b.id === id);
+
+    if (index === -1) {
+        return res.status(404).json({ message: "Prenotazione non trovata" });
+    }
+
+    bookings[index] = {
+        ...bookings[index],
+        ...req.body,
+        id // mantieni lo stesso ID
+    };
+
+    writeBookings(bookings);
+    res.status(200).json(bookings[index]);
+};
+

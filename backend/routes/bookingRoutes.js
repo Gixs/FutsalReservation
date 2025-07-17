@@ -3,6 +3,8 @@ import {
     getSlots,
     createBooking,
     getAllBookings,
+    deleteBooking,
+    updateBooking,
 } from '../controllers/bookingController.js';
 
 const router = express.Router();
@@ -12,3 +14,6 @@ router.post('/slots', createBooking);   // Es: body JSON con date e time
 router.get('/bookings', getAllBookings); // Lista tutte le prenotazioni
 
 export default router;
+
+router.delete('/bookings/:id', deleteBooking);
+router.put('/bookings/:id', updateBooking);
